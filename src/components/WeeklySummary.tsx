@@ -41,7 +41,7 @@ const WeeklySummary: React.FC = () => {
         <div className="space-y-2">
           <div className="flex justify-between items-center">
             <span className="text-sm font-medium">Horas trabajadas</span>
-            <span className="text-sm text-gray-600">{weeklyHours}/{targetHours}h</span>
+            <span className="text-sm text-gray-600">{totalHours.toFixed(1)}/{targetHours}h</span>
           </div>
           <Progress value={progressPercentage} className="h-2" />
           <div className="text-xs text-gray-500 text-center">
@@ -52,17 +52,17 @@ const WeeklySummary: React.FC = () => {
         <div className="flex justify-between items-center">
           <span className="text-sm font-medium">Estado</span>
           <Badge 
-            variant={isActive ? "default" : "secondary"}
+            variant={isCurrentlyActive ? "default" : "secondary"}
             className={`flex items-center gap-1 ${
-              isActive ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
+              isCurrentlyActive ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
             }`}
           >
-            {isActive ? (
+            {isCurrentlyActive ? (
               <CheckCircle className="h-3 w-3" />
             ) : (
               <XCircle className="h-3 w-3" />
             )}
-            {isActive ? 'Activo' : 'Inactivo'}
+            {isCurrentlyActive ? 'Trabajando' : 'No activo'}
           </Badge>
         </div>
         

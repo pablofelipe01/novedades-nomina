@@ -5,9 +5,11 @@ import { Badge } from '@/components/ui/badge';
 import { toast } from '@/components/ui/use-toast';
 import { Play, Pause, Square, Coffee } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
+import { useWork } from '@/contexts/WorkContext';
 
 const WorkdayControl: React.FC = () => {
   const { userCedula } = useAuth();
+  const { startWork, endWork, isWorking, currentEntry } = useWork();
   const storageKey = userCedula ? `workdayState_${userCedula}` : null;
 
   // 1. Carga el estado inicial desde localStorage
@@ -40,6 +42,7 @@ const WorkdayControl: React.FC = () => {
   const handleStartWorkday = () => {
     const time = getCurrentTime();
     setWorkday(prev => ({ ...prev, startTime: time }));
+    startWork(); // Iniciar seguimiento en WorkContext
     toast({ title: 'Jornada iniciada', description: `Hora: ${time}` });
   };
 
@@ -58,6 +61,9 @@ const WorkdayControl: React.FC = () => {
   const handleEndWorkday = async () => {
     const time = getCurrentTime();
     setWorkday(prev => ({ ...prev, endTime: time }));
+    
+    // Finalizar seguimiento en WorkContext
+    endWork();
     
     // Send to webhook (simplified)
     try {
@@ -82,8 +88,13 @@ const WorkdayControl: React.FC = () => {
       <CardHeader><CardTitle>Control de Jornada</CardTitle></CardHeader>
       <CardContent className="space-y-4">
         <div className="grid grid-cols-2 gap-4">
-          <Button onClick={handleStartWorkday} disabled={!!workday.startTime} className="flex items-center gap-2">
-            <Play className="h-4 w-4" />Iniciar
+          <Button 
+            onClick={handleStartWorkday} 
+            disabled={!!workday.startTime || isWorking} 
+            className="flex items-center gap-2"
+          >
+            <Play className="h-4 w-4" />
+            {isWorking ? 'Trabajando...' : 'Iniciar'}
           </Button>
           <Button onClick={handleStartLunch} disabled={!workday.startTime || !!workday.lunchStart} variant="outline" className="flex items-center gap-2">
             <Coffee className="h-4 w-4" />Almuerzo
@@ -96,9 +107,34 @@ const WorkdayControl: React.FC = () => {
           </Button>
         </div>
         <div className="space-y-2">
-          {workday.startTime && <div className="flex justify-between"><span>Inicio:</span><Badge variant="outline">{workday.startTime}</Badge></div>}
-          {workday.lunchStart && <div className="flex justify-between"><span>Almuerzo:</span><Badge variant="outline">{workday.lunchStart}</Badge></div>}
-          {workday.lunchEnd && <div className="flex justify-between"><span>Fin Almuerzo:</span><Badge variant="outline">{workday.lunchEnd}</Badge></div>}
+          {(workday.startTime || currentEntry) && (
+            <div className="flex justify-between">
+              <span>Inicio:</span>
+              <Badge variant="outline">
+                {workday.startTime || currentEntry?.startTime}
+              </Badge>
+            </div>
+          )}
+          {workday.lunchStart && (
+            <div className="flex justify-between">
+              <span>Almuerzo:</span>
+              <Badge variant="outline">{workday.lunchStart}</Badge>
+            </div>
+          )}
+          {workday.lunchEnd && (
+            <div className="flex justify-between">
+              <span>Fin Almuerzo:</span>
+              <Badge variant="outline">{workday.lunchEnd}</Badge>
+            </div>
+          )}
+          {isWorking && currentEntry && (
+            <div className="flex justify-between">
+              <span>Horas actuales:</span>
+              <Badge variant="outline" className="bg-green-50 text-green-700">
+                {currentEntry.hoursWorked.toFixed(1)}h
+              </Badge>
+            </div>
+          )}
         </div>
       </CardContent>
     </Card>

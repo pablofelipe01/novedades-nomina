@@ -43,12 +43,7 @@ const AppLayout: React.FC = () => {
           <UserInfoCard />
 
           {/* Weekly Summary */}
-          <WeeklySummary
-            weeklyHours={32}
-            targetHours={40}
-            isActive={true}
-            dailyExtraMiles={2}
-          />
+          <WeeklySummary />
 
           {/* Workday Control */}
           <WorkdayControl />

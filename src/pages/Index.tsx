@@ -1,6 +1,7 @@
 import React from 'react';
 import { AuthProvider, useAuth } from '@/contexts/AuthContext';
 import { AppProvider } from '@/contexts/AppContext';
+import { WorkProvider } from '@/contexts/WorkContext';
 import LoginForm from '@/components/LoginForm';
 import AppLayout from '@/components/AppLayout';
 
@@ -18,7 +19,9 @@ const Index: React.FC = () => {
   return (
     <AuthProvider>
       <AppProvider>
-        <IndexContent />
+        <WorkProvider>
+          <IndexContent />
+        </WorkProvider>
       </AppProvider>
     </AuthProvider>
   );
