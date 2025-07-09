@@ -1,9 +1,17 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 
+interface UserInfo {
+  cedula: string;
+  nombre: string;
+  cargo: string;
+  area: string;
+}
+
 interface AuthContextType {
   isAuthenticated: boolean;
-  userCedula: string | null;
-  login: (cedula: string) => void;
+  userInfo: UserInfo | null;
+  userCedula: string | null; // Mantenemos para compatibilidad
+  login: (cedula: string, nombre?: string, cargo?: string, area?: string) => void;
   logout: () => void;
 }
 
@@ -19,31 +27,53 @@ export const useAuth = () => {
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [userInfo, setUserInfo] = useState<UserInfo | null>(null);
   const [userCedula, setUserCedula] = useState<string | null>(null);
 
   useEffect(() => {
     // Check if user is already logged in
+    const savedUserInfo = localStorage.getItem('userInfo');
     const savedCedula = localStorage.getItem('userCedula');
-    if (savedCedula) {
+    
+    if (savedUserInfo) {
+      const parsedUserInfo = JSON.parse(savedUserInfo);
+      setIsAuthenticated(true);
+      setUserInfo(parsedUserInfo);
+      setUserCedula(parsedUserInfo.cedula);
+    } else if (savedCedula) {
+      // Compatibilidad con datos existentes
       setIsAuthenticated(true);
       setUserCedula(savedCedula);
+      setUserInfo({
+        cedula: savedCedula,
+        nombre: 'Usuario',
+        cargo: 'No especificado',
+        area: 'No especificada'
+      });
     }
   }, []);
 
-  const login = (cedula: string) => {
+  const login = (cedula: string, nombre: string = 'Usuario', cargo: string = 'No especificado', area: string = 'No especificada') => {
+    const newUserInfo: UserInfo = { cedula, nombre, cargo, area };
+    
     setIsAuthenticated(true);
+    setUserInfo(newUserInfo);
     setUserCedula(cedula);
-    localStorage.setItem('userCedula', cedula);
+    
+    localStorage.setItem('userInfo', JSON.stringify(newUserInfo));
+    localStorage.setItem('userCedula', cedula); // Mantenemos para compatibilidad
   };
 
   const logout = () => {
     setIsAuthenticated(false);
+    setUserInfo(null);
     setUserCedula(null);
+    localStorage.removeItem('userInfo');
     localStorage.removeItem('userCedula');
   };
 
   return (
-    <AuthContext.Provider value={{ isAuthenticated, userCedula, login, logout }}>
+    <AuthContext.Provider value={{ isAuthenticated, userInfo, userCedula, login, logout }}>
       {children}
     </AuthContext.Provider>
   );

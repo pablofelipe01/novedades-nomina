@@ -7,7 +7,7 @@ import { toast } from '@/components/ui/use-toast';
 import { Loader2 } from 'lucide-react';
 
 interface LoginFormProps {
-  onLogin: (cedula: string) => void;
+  onLogin: (cedula: string, nombre?: string, cargo?: string, area?: string) => void;
 }
 
 const LoginForm: React.FC<LoginFormProps> = ({ onLogin }) => {
@@ -69,10 +69,18 @@ const LoginForm: React.FC<LoginFormProps> = ({ onLogin }) => {
       // Si el array 'records' tiene al menos un elemento, la cédula es válida
       if (data.records && data.records.length > 0) {
         // La cédula es válida, procede con el login
-        onLogin(cedula);
+        const record = data.records[0];
+        const fields = record.fields;
+        
+        // Extrae la información del usuario desde Airtable
+        const nombre = fields.Nombre || fields.nombre || 'Usuario';
+        const cargo = fields.Cargo || fields.cargo || 'No especificado';
+        const area = fields.Area || fields.area || fields.Área || 'No especificada';
+        
+        onLogin(cedula, nombre, cargo, area);
         toast({
           title: 'Éxito',
-          description: 'Inicio de sesión exitoso'
+          description: `Bienvenido/a ${nombre}`
         });
       } else {
         // La cédula no fue encontrada en la base de datos

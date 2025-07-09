@@ -2,30 +2,40 @@ import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
 import { Badge } from '@/components/ui/badge';
-import { Clock, CheckCircle, XCircle } from 'lucide-react';
+import { Clock, CheckCircle, XCircle, RefreshCw } from 'lucide-react';
+import { useWork } from '@/contexts/WorkContext';
+import { Button } from '@/components/ui/button';
 
-interface WeeklySummaryProps {
-  weeklyHours: number;
-  targetHours: number;
-  isActive: boolean;
-  dailyExtraMiles: number;
-}
+const WeeklySummary: React.FC = () => {
+  const { weeklyData, refreshData } = useWork();
+  
+  const { 
+    totalHours, 
+    targetHours, 
+    isCurrentlyActive, 
+    dailyExtraMiles 
+  } = weeklyData;
 
-const WeeklySummary: React.FC<WeeklySummaryProps> = ({
-  weeklyHours = 32,
-  targetHours = 40,
-  isActive = true,
-  dailyExtraMiles = 2
-}) => {
-  const progressPercentage = Math.min((weeklyHours / targetHours) * 100, 100);
+  const progressPercentage = Math.min((totalHours / targetHours) * 100, 100);
 
   return (
     <Card className="w-full">
       <CardHeader>
-        <CardTitle className="flex items-center gap-2">
-          <Clock className="h-5 w-5" />
-          Resumen Semanal
-        </CardTitle>
+        <div className="flex justify-between items-center">
+          <CardTitle className="flex items-center gap-2">
+            <Clock className="h-5 w-5" />
+            Resumen Semanal
+          </CardTitle>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={refreshData}
+            className="flex items-center gap-1"
+          >
+            <RefreshCw className="h-3 w-3" />
+            Actualizar
+          </Button>
+        </div>
       </CardHeader>
       <CardContent className="space-y-4">
         <div className="space-y-2">

@@ -5,6 +5,7 @@ import { LogOut, User } from 'lucide-react';
 import WeeklySummary from './WeeklySummary';
 import WorkdayControl from './WorkdayControl';
 import ExtraMileForm from './ExtraMileForm';
+import UserInfoCard from './UserInfoCard';
 
 const AppLayout: React.FC = () => {
   const { userCedula, logout } = useAuth();
@@ -38,6 +39,9 @@ const AppLayout: React.FC = () => {
       {/* Main Content */}
       <main className="max-w-4xl mx-auto px-4 py-6">
         <div className="space-y-6">
+          {/* User Information */}
+          <UserInfoCard />
+
           {/* Weekly Summary */}
           <WeeklySummary
             weeklyHours={32}
